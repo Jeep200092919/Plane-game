@@ -1,9 +1,62 @@
 -- MainMenu.client.lua (LocalScript → StarterPlayerScripts)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- ─── Intro Splash ─────────────────────────────────────────────────────────────
+
+local splashGui = Instance.new("ScreenGui")
+splashGui.Name = "IntroSplash"
+splashGui.ResetOnSpawn = false
+splashGui.IgnoreGuiInset = true
+splashGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+splashGui.Parent = playerGui
+
+local splashBg = Instance.new("Frame")
+splashBg.Size = UDim2.new(1, 0, 1, 0)
+splashBg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+splashBg.BorderSizePixel = 0
+splashBg.Parent = splashGui
+
+local splashLabel = Instance.new("TextLabel")
+splashLabel.Size = UDim2.new(0.8, 0, 0, 60)
+splashLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+splashLabel.Position = UDim2.new(0.5, 0, 0.48, 0)
+splashLabel.BackgroundTransparency = 1
+splashLabel.Text = "Powered by PrimorixStudios"
+splashLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+splashLabel.TextTransparency = 1
+splashLabel.Font = Enum.Font.GothamBlack
+splashLabel.TextSize = 32
+splashLabel.Parent = splashBg
+
+local splashSub = Instance.new("TextLabel")
+splashSub.Size = UDim2.new(0.8, 0, 0, 28)
+splashSub.AnchorPoint = Vector2.new(0.5, 0.5)
+splashSub.Position = UDim2.new(0.5, 0, 0.57, 0)
+splashSub.BackgroundTransparency = 1
+splashSub.Text = "& Roblox Engine"
+splashSub.TextColor3 = Color3.fromRGB(160, 210, 255)
+splashSub.TextTransparency = 1
+splashSub.Font = Enum.Font.GothamMedium
+splashSub.TextSize = 20
+splashSub.Parent = splashBg
+
+-- Fade in text
+task.wait(0.4)
+TweenService:Create(splashLabel, TweenInfo.new(0.8), { TextTransparency = 0 }):Play()
+TweenService:Create(splashSub,   TweenInfo.new(0.8), { TextTransparency = 0 }):Play()
+
+-- Hold for 5 seconds total (0.4 wait + 0.8 fade-in + ~3.8 hold = 5s) then fade out
+task.wait(3.8)
+TweenService:Create(splashLabel, TweenInfo.new(0.6), { TextTransparency = 1 }):Play()
+TweenService:Create(splashSub,   TweenInfo.new(0.6), { TextTransparency = 1 }):Play()
+TweenService:Create(splashBg,    TweenInfo.new(0.6), { BackgroundTransparency = 1 }):Play()
+task.wait(0.65)
+splashGui:Destroy()
 
 -- ─── ScreenGui ────────────────────────────────────────────────────────────────
 
@@ -304,9 +357,72 @@ local function makeSlider(parent, labelText, yPos, default)
     return row
 end
 
-makeToggle(settingsPanel, "Music",          100, true)
-makeToggle(settingsPanel, "Sound Effects",  154, true)
-makeToggle(settingsPanel, "Show FPS",       208, false)
+makeToggle(settingsPanel, "Music",         100, true)
+makeToggle(settingsPanel, "Sound Effects", 154, true)
+
+-- Show FPS toggle (returns the row so we can grab the button state)
+local fpsEnabled = false
+local fpsRow = makeToggle(settingsPanel, "Show FPS", 208, false)
+
+-- FPS counter label (top-right corner, always in screenGui)
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Name = "FPSCounter"
+fpsLabel.Size = UDim2.new(0, 100, 0, 28)
+fpsLabel.Position = UDim2.new(1, -110, 0, 10)
+fpsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+fpsLabel.BackgroundTransparency = 0.45
+fpsLabel.BorderSizePixel = 0
+fpsLabel.Text = "FPS: --"
+fpsLabel.TextColor3 = Color3.fromRGB(100, 220, 100)
+fpsLabel.Font = Enum.Font.Code
+fpsLabel.TextSize = 16
+fpsLabel.Visible = false
+fpsLabel.ZIndex = 10
+fpsLabel.Parent = screenGui
+Instance.new("UICorner", fpsLabel).CornerRadius = UDim.new(0, 6)
+
+-- Wire toggle to fpsEnabled flag
+local fpsToggleBtn = fpsRow:FindFirstChildWhichIsA("Frame", true)
+    and fpsRow:FindFirstChildWhichIsA("Frame"):FindFirstChildOfClass("TextButton")
+-- Re-use makeToggle's returned row; patch the click by overriding via a separate toggle tracker
+do
+    -- Find the TextButton inside the toggle track inside fpsRow
+    local trackFrame = fpsRow:FindFirstChildWhichIsA("Frame")
+    if trackFrame then
+        local innerBtn = trackFrame:FindFirstChildOfClass("TextButton")
+        if innerBtn then
+            innerBtn.MouseButton1Click:Connect(function()
+                -- State flips inside makeToggle already; we just mirror it
+                fpsEnabled = not fpsEnabled
+                fpsLabel.Visible = fpsEnabled
+            end)
+        end
+    end
+end
+
+-- FPS update loop
+local frameCount = 0
+local elapsed = 0
+RunService.RenderStepped:Connect(function(dt)
+    if not fpsEnabled then return end
+    frameCount += 1
+    elapsed += dt
+    if elapsed >= 0.5 then
+        local fps = math.round(frameCount / elapsed)
+        fpsLabel.Text = "FPS: " .. fps
+        -- Color-code: green ≥60, yellow 30-59, red <30
+        if fps >= 60 then
+            fpsLabel.TextColor3 = Color3.fromRGB(100, 220, 100)
+        elseif fps >= 30 then
+            fpsLabel.TextColor3 = Color3.fromRGB(255, 200, 60)
+        else
+            fpsLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        end
+        frameCount = 0
+        elapsed = 0
+    end
+end)
+
 makeSlider(settingsPanel, "Music Volume",   268, 0.7)
 makeSlider(settingsPanel, "SFX Volume",     338, 0.9)
 
@@ -342,7 +458,7 @@ creditsText.Size = UDim2.new(0.85, 0, 0, 280)
 creditsText.AnchorPoint = Vector2.new(0.5, 0)
 creditsText.Position = UDim2.new(0.5, 0, 0, 100)
 creditsText.BackgroundTransparency = 1
-creditsText.Text = "Game Design\nYour Name\n\nProgramming\nYour Name\n\nArt & Assets\nYour Name\n\nSpecial Thanks\nRoblox Community"
+creditsText.Text = "Game Design\nGabrielmanso2013\n\nProgramming\nGabrielmanso2013\n\nStudio\nPrimorixStudios\n\nSpecial Thanks\nRoblox Community"
 creditsText.TextColor3 = Color3.fromRGB(180, 210, 255)
 creditsText.Font = Enum.Font.Gotham
 creditsText.TextSize = 18
