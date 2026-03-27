@@ -14,20 +14,11 @@ local walkTrack = animator:LoadAnimation(animObj)
 walkTrack.Priority = Enum.AnimationPriority.Core
 walkTrack.Looped   = true
 
--- Stop the default walk/run animations from Roblox's built-in Animate script
+-- Disable the default Animate script so it doesn't conflict
 task.defer(function()
     local animScript = character:FindFirstChild("Animate")
     if animScript then
-        local walkFolder = animScript:FindFirstChild("walk")
-        if walkFolder then
-            local defaultWalk = walkFolder:FindFirstChild("WalkAnim")
-            if defaultWalk then defaultWalk.AnimationId = "" end
-        end
-        local runFolder = animScript:FindFirstChild("run")
-        if runFolder then
-            local defaultRun = runFolder:FindFirstChild("RunAnim")
-            if defaultRun then defaultRun.AnimationId = "" end
-        end
+        animScript.Enabled = false
     end
 end)
 
