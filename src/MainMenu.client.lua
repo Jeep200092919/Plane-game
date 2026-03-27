@@ -86,6 +86,84 @@ gradient.Color = ColorSequence.new({
 gradient.Rotation = 90
 gradient.Parent = bg
 
+-- ─── Fighter Jet (ViewportFrame) ─────────────────────────────────────────────
+
+local viewport = Instance.new("ViewportFrame")
+viewport.Size = UDim2.new(1, 0, 1, 0)
+viewport.Position = UDim2.new(0, 0, 0, 0)
+viewport.BackgroundTransparency = 1
+viewport.LightColor = Color3.fromRGB(200, 220, 255)
+viewport.LightDirection = Vector3.new(-1, -2, -1)
+viewport.Ambient = Color3.fromRGB(60, 90, 140)
+viewport.ZIndex = 2
+viewport.Parent = bg
+
+local planeModel = Instance.new("Model")
+planeModel.Parent = viewport
+
+local function vp(name, size, color, cf, trans, mat)
+    local p = Instance.new("Part")
+    p.Name = name
+    p.Size = size
+    p.BrickColor = color
+    p.Material = mat or Enum.Material.SmoothPlastic
+    p.CFrame = cf
+    p.Anchored = true
+    p.CastShadow = false
+    p.Transparency = trans or 0
+    p.Parent = planeModel
+    return p
+end
+
+local o = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.rad(30), math.rad(-12))
+
+-- Fuselage
+vp("Body",    Vector3.new(6,   1.5, 16),  BrickColor.new("Medium stone grey"), o * CFrame.new(0, 0, 0))
+-- Cockpit
+vp("Cockpit", Vector3.new(2.2, 1.1, 3.8), BrickColor.new("Cyan"),              o * CFrame.new(0, 1.15, -2.5), 0.25)
+-- Main wings (left & right as one wide part)
+vp("Wings",   Vector3.new(26,  0.35, 6),  BrickColor.new("Dark grey"),         o * CFrame.new(0, -0.2, 0.8))
+-- Wing detail stripe
+vp("WingLine",Vector3.new(24,  0.1, 0.5), BrickColor.new("Bright blue"),       o * CFrame.new(0, 0, 0.5), 0, Enum.Material.Neon)
+-- Tail vertical fin
+vp("TailFin", Vector3.new(7,   3.2, 0.5), BrickColor.new("Medium stone grey"), o * CFrame.new(0, 1.6, 7.0))
+-- Horizontal stabilisers
+vp("HStabL",  Vector3.new(5.5, 0.3, 1.8), BrickColor.new("Dark grey"),         o * CFrame.new(-3.5, 0.2, 6.8))
+vp("HStabR",  Vector3.new(5.5, 0.3, 1.8), BrickColor.new("Dark grey"),         o * CFrame.new( 3.5, 0.2, 6.8))
+-- Nose cone
+vp("Nose",    Vector3.new(3,   0.85, 4),  BrickColor.new("Dark grey"),          o * CFrame.new(0, 0, -9.8))
+-- Engine nozzle
+vp("Nozzle",  Vector3.new(3,   3,   2),   BrickColor.new("Dark grey"),          o * CFrame.new(0, 0, 8.5), 0, Enum.Material.Metal)
+-- Nozzle glow
+vp("NozzleGlow", Vector3.new(2, 2, 0.4),  BrickColor.new("Bright orange"),     o * CFrame.new(0, 0, 9.6), 0.3, Enum.Material.Neon)
+-- Air intakes (left & right)
+vp("IntakeL", Vector3.new(1.2, 1.8, 3.5), BrickColor.new("Dark grey"),         o * CFrame.new(-2.2, -0.4, 1.0))
+vp("IntakeR", Vector3.new(1.2, 1.8, 3.5), BrickColor.new("Dark grey"),         o * CFrame.new( 2.2, -0.4, 1.0))
+-- Cockpit frame
+vp("Canopy",  Vector3.new(2.0, 0.15, 3.6),BrickColor.new("Dark grey"),         o * CFrame.new(0, 1.72, -2.5))
+-- Wing missiles (left & right)
+vp("MissileL",Vector3.new(0.5, 0.5, 4),   BrickColor.new("Bright red"),        o * CFrame.new(-9, -0.3, 0.5))
+vp("MissileR",Vector3.new(0.5, 0.5, 4),   BrickColor.new("Bright red"),        o * CFrame.new( 9, -0.3, 0.5))
+
+-- Camera: angled view showing the jet dramatically on the left side
+local vpCam = Instance.new("Camera")
+vpCam.FieldOfView = 55
+vpCam.Parent = viewport
+viewport.CurrentCamera = vpCam
+
+-- Slow camera orbit
+local camAngle = 0
+RunService.RenderStepped:Connect(function(dt)
+    camAngle = camAngle + dt * 0.12   -- very slow rotation
+    local radius = 38
+    local cx = math.sin(camAngle) * radius * 0.3 + 14  -- drift slightly left-right
+    local cz = math.cos(camAngle) * radius + 5
+    vpCam.CFrame = CFrame.lookAt(
+        Vector3.new(cx, 10, cz),
+        Vector3.new(0, 0, 0)
+    )
+end)
+
 -- ─── Clouds (decorative bars) ─────────────────────────────────────────────────
 
 local function makeCloud(yPos, width, xStart, speed, alpha)
