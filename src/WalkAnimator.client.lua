@@ -1,29 +1,20 @@
 -- WalkAnimator.client.lua
--- Place this LocalScript inside StarterCharacterScripts alongside Walk2
+-- Place this LocalScript inside StarterCharacterScripts
 local RunService = game:GetService("RunService")
-local KSProvider = game:GetService("KeyframeSequenceProvider")
 
 local character = script.Parent
 local humanoid  = character:WaitForChild("Humanoid")
 local animator  = humanoid:WaitForChild("Animator")
 
--- Walk2 is cloned from StarterCharacterScripts into the character at spawn
-local walkKFS = character:WaitForChild("Walk2", 5)
-if not walkKFS then
-    warn("[WalkAnimator] Walk2 not found in character.")
-    return
-end
-
--- Register the KeyframeSequence so it gets a usable temporary asset ID
-local tempId  = KSProvider:RegisterKeyframeSequence(walkKFS)
+-- Walk2 animation ID
 local animObj = Instance.new("Animation")
-animObj.AnimationId = tempId
+animObj.AnimationId = "rbxassetid://101653416557544"
 
 local walkTrack = animator:LoadAnimation(animObj)
 walkTrack.Priority = Enum.AnimationPriority.Core
 walkTrack.Looped   = true
 
--- Stop the default walk animation from Roblox's built-in Animate script
+-- Stop the default walk/run animations from Roblox's built-in Animate script
 task.defer(function()
     local animScript = character:FindFirstChild("Animate")
     if animScript then
@@ -60,7 +51,6 @@ conn = RunService.Heartbeat:Connect(function()
             walkTrack:Play(0.15)
             isPlaying = true
         end
-        -- Scale animation speed to match walk speed (default WalkSpeed = 16)
         walkTrack:AdjustSpeed(humanoid.WalkSpeed / 16)
     else
         if isPlaying then
@@ -69,3 +59,4 @@ conn = RunService.Heartbeat:Connect(function()
         end
     end
 end)
+
