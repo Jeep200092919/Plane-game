@@ -1,0 +1,59 @@
+{
+  "name": "PlaneGame",
+  "tree": {
+    "$className": "DataModel",
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "PlaneController": {
+          "$path": "src/client/PlaneController.client.lua"
+        },
+        "CameraController": {
+          "$path": "src/client/CameraController.client.lua"
+        },
+        "PlaneGui": {
+          "$path": "src/client/PlaneGui.client.lua"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "PlaneServer": {
+        "$path": "src/server/PlaneServer.server.lua"
+      },
+      "SpawnManager": {
+        "$path": "src/server/SpawnManager.server.lua"
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "PlaneConfig": {
+        "$path": "src/shared/PlaneConfig.lua"
+      },
+      "PlanePhysics": {
+        "$path": "src/shared/PlanePhysics.lua"
+      },
+      "RemoteEvents": {
+        "$className": "Folder",
+        "BoardPlane": {
+          "$className": "RemoteEvent"
+        },
+        "ExitPlane": {
+          "$className": "RemoteEvent"
+        },
+        "UpdatePlaneState": {
+          "$className": "RemoteEvent"
+        },
+        "FireWeapon": {
+          "$className": "RemoteEvent"
+        }
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "Terrain": {
+        "$className": "Terrain"
+      }
+    }
+  }
+}
