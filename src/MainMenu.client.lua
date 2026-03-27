@@ -502,9 +502,106 @@ end)
 
 -- ─── Play button ─────────────────────────────────────────────────────────────
 
+local function showWelcomeMessage()
+    local wGui = Instance.new("ScreenGui")
+    wGui.Name = "WelcomeMsg"
+    wGui.ResetOnSpawn = false
+    wGui.IgnoreGuiInset = true
+    wGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    wGui.Parent = playerGui
+
+    -- Card
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(0, 420, 0, 130)
+    card.AnchorPoint = Vector2.new(0.5, 0)
+    card.Position = UDim2.new(0.5, 0, -0.2, 0)   -- starts above screen
+    card.BackgroundColor3 = Color3.fromRGB(8, 16, 32)
+    card.BackgroundTransparency = 0.15
+    card.BorderSizePixel = 0
+    card.Parent = wGui
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 14)
+
+    local cardStroke = Instance.new("UIStroke")
+    cardStroke.Color = Color3.fromRGB(80, 160, 255)
+    cardStroke.Thickness = 1.5
+    cardStroke.Transparency = 0.3
+    cardStroke.Parent = card
+
+    -- Icon row
+    local icon = Instance.new("TextLabel")
+    icon.Size = UDim2.new(0, 36, 0, 36)
+    icon.Position = UDim2.new(0, 14, 0, 12)
+    icon.BackgroundTransparency = 1
+    icon.Text = "✈"
+    icon.TextColor3 = Color3.fromRGB(100, 190, 255)
+    icon.Font = Enum.Font.GothamBlack
+    icon.TextSize = 28
+    icon.Parent = card
+
+    -- Welcome line
+    local line1 = Instance.new("TextLabel")
+    line1.Size = UDim2.new(1, -60, 0, 30)
+    line1.Position = UDim2.new(0, 54, 0, 10)
+    line1.BackgroundTransparency = 1
+    line1.Text = "Welcome to the game!"
+    line1.TextColor3 = Color3.fromRGB(255, 255, 255)
+    line1.Font = Enum.Font.GothamBold
+    line1.TextSize = 20
+    line1.TextXAlignment = Enum.TextXAlignment.Left
+    line1.Parent = card
+
+    -- Credits line
+    local line2 = Instance.new("TextLabel")
+    line2.Size = UDim2.new(1, -60, 0, 22)
+    line2.Position = UDim2.new(0, 54, 0, 38)
+    line2.BackgroundTransparency = 1
+    line2.Text = "Created by Gabrielmanso2013  •  Powered by PrimorixStudios"
+    line2.TextColor3 = Color3.fromRGB(140, 190, 255)
+    line2.Font = Enum.Font.Gotham
+    line2.TextSize = 13
+    line2.TextXAlignment = Enum.TextXAlignment.Left
+    line2.Parent = card
+
+    -- Tip line
+    local line3 = Instance.new("TextLabel")
+    line3.Size = UDim2.new(1, -20, 0, 22)
+    line3.Position = UDim2.new(0, 10, 0, 72)
+    line3.BackgroundTransparency = 1
+    line3.Text = "Try hitting the enemy plane — enjoy the game ✔️"
+    line3.TextColor3 = Color3.fromRGB(100, 220, 130)
+    line3.Font = Enum.Font.GothamMedium
+    line3.TextSize = 15
+    line3.TextXAlignment = Enum.TextXAlignment.Center
+    line3.Parent = card
+
+    -- Divider above tip
+    local div = Instance.new("Frame")
+    div.Size = UDim2.new(0.88, 0, 0, 1)
+    div.AnchorPoint = Vector2.new(0.5, 0)
+    div.Position = UDim2.new(0.5, 0, 0, 66)
+    div.BackgroundColor3 = Color3.fromRGB(60, 100, 180)
+    div.BackgroundTransparency = 0.5
+    div.BorderSizePixel = 0
+    div.Parent = card
+
+    -- Slide down into view
+    TweenService:Create(card, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, 0, 24),
+    }):Play()
+
+    -- Hold then slide back up and destroy
+    task.delay(4.5, function()
+        TweenService:Create(card, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+            Position = UDim2.new(0.5, 0, -0.2, 0),
+        }):Play()
+        task.delay(0.45, function()
+            wGui:Destroy()
+        end)
+    end)
+end
+
 playBtn.MouseButton1Click:Connect(function()
     -- Fade out menu then hide it
-    TweenService:Create(screenGui, TweenInfo.new(0.5), { }):Play()
     TweenService:Create(bg, TweenInfo.new(0.6), { BackgroundTransparency = 1 }):Play()
     TweenService:Create(panel, TweenInfo.new(0.4), {
         BackgroundTransparency = 1,
@@ -512,6 +609,7 @@ playBtn.MouseButton1Click:Connect(function()
     }):Play()
     task.delay(0.65, function()
         screenGui:Destroy()
+        showWelcomeMessage()
     end)
 end)
 
